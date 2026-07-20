@@ -14,6 +14,3 @@ app.add_middleware(
 app.include_router(transcribe.router, prefix='/api', tags= ['STT'])
 app.include_router(process.router, prefix='/api', tags= ['LLM'])
 
-@app.get('/health')
-async def health():
-    return {'status':'ok'}

@@ -1,13 +1,6 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Model } from "mongoose";
 
-export interface User extends Document {
-  username: string;
-  email: string;
-  password: string;
-  verifyCode: string;
-  verifyCodeExpiry: Date;
-  isVerified: boolean;
-}
+import {User} from '@/types/index'
 
 const UserSchema: Schema<User> = new Schema(
   {
@@ -16,6 +9,7 @@ const UserSchema: Schema<User> = new Schema(
       required: [true, "Username is required"],
       unique: true,
       trim: true,
+       lowercase: true,
       
     },
 
@@ -31,23 +25,12 @@ const UserSchema: Schema<User> = new Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
+      min : 6,  
     },
 
-    verifyCode: {
-      type: String,
-      required: [true, "Verification code is required"],
-    },
-
-    verifyCodeExpiry: {
-      type: Date,
-      required: [true, "Verification code expiry is required"],
-    },
-
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-  }
+   
+  },
+   { timestamps: true }
   
 );
 
