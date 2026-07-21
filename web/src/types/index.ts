@@ -32,7 +32,7 @@ export interface Meeting extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-export interface IWebhookPayload extends Document{
+export interface WebhookPayload extends Document{
   title: string;
   transcript: string;
   summary: string;
