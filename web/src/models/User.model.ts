@@ -4,14 +4,7 @@ import {User} from '@/types/index'
 
 const UserSchema: Schema<User> = new Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      unique: true,
-      trim: true,
-       lowercase: true,
-      
-    },
+   
 
     email: {
       type: String,
@@ -24,8 +17,22 @@ const UserSchema: Schema<User> = new Schema(
 
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: false,
       min : 6,  
+    },
+     name: {
+      type: String,
+     default : ""
+      
+       
+      
+    },
+     image: {
+      type: String,
+     default : ""
+      
+       
+      
     },
 
    

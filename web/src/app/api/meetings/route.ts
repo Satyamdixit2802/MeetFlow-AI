@@ -40,41 +40,36 @@ export async function POST(request: NextRequest) {
 
         const body: WebhookPayload = await request.json();
 
-        if (!body) {
+        if (!body?.summary) {
             return NextResponse.json(
-                {
-                    error: "summary is required"
-                },
+                { error: "summary is required" },
                 { status: 400 }
-            )
-
-            const meeting = await MeetingModel.create({
-                title: body.title || "Untitled Meeting",
-                transcript: body.transcript || "",
-                summary: body.summary
-
-            });
-
-            const actionItems = await ActionItemModel.insertMany(
-                (body.action_items ?? []).map((item) => ({
-                    ...item,
-                    meetingId: meeting._id,
-                    status: "pending",
-                }))
-            );
-            return NextResponse.json(
-                { meeting, actionItems },
-                { status: 201 }
             );
         }
-    }
-    catch (error) {
+
+        const meeting = await MeetingModel.create({
+            title: body.title || "Untitled Meeting",
+            transcript: body.transcript || "",
+            summary: body.summary,
+        });
+
+        const actionItems = await ActionItemModel.insertMany(
+            (body.action_items ?? []).map((item) => ({
+                ...item,
+                meetingId: meeting._id,
+                status: "pending",
+            }))
+        );
+
+        return NextResponse.json(
+            { meeting, actionItems },
+            { status: 201 }
+        );
+    } catch (error) {
         console.error("[POST /api/meetings]", error);
         return NextResponse.json(
             { error: "Failed to create meeting" },
             { status: 500 }
         );
-
-
     }
 }

@@ -1,11 +1,12 @@
 
 import {Types,Document} from "mongoose" ;
-
+import {DefaultSession} from "next-auth"
 export interface User extends Document {
     _id: Types.ObjectId;
-    username : string;
     email: string;
-    password: string;
+    name?: string;
+    image?: string;
+    password?: string;
     createdAt: Date;
     updatedAt: Date;
 
@@ -49,3 +50,15 @@ export interface MeetingWithActions extends Meeting {
 
 
 
+declare module "next-auth" {
+
+  interface Session {
+    user : {
+      id : string
+    } & DefaultSession["user"]
+  }
+
+  interface User {
+    id: string
+  }
+}

@@ -33,18 +33,18 @@ def get_llm(model: str = "groq"):
         temperature=0
      )
 
-async def extract_meeting_data(transcript: str,model: str = "groq") ->MeetingExtraction:
+async def extract_meeting_data(transcript: str, model: str = "groq") -> MeetingExtraction:
      llm = get_llm(model)
-     parser = JsonOutputParser(pydantic_object = MeetingExtraction)
+     parser = JsonOutputParser(pydantic_object=MeetingExtraction)
 
      prompt = ChatPromptTemplate.from_messages([
-        ("system",SYSTEM_PROMPT),
+        ("system", SYSTEM_PROMPT),
         ("human", "{transcript}")
      ])
 
      chain = prompt | llm | parser
 
-     result = await chain.ainvoke({"transcript"}: transcript)
+     result = await chain.ainvoke({"transcript": transcript})
      return MeetingExtraction(**result)
 
 

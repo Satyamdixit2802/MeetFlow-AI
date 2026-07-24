@@ -8,7 +8,7 @@ class ActionItem(BaseModel):
 
 class MeetingExtraction(BaseModel):
     summary: str
-    action_items = List[ActionItem]
+    action_items: List[ActionItem]
 
 class ProcessRequest(BaseModel):
     transcript: str
