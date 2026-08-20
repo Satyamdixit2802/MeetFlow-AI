@@ -2,13 +2,13 @@ import {NextResponse, NextRequest} from "next/server"
 import bcrypt from "bcryptjs"
 import User from "@/models/User.model"
 import dbConnect from "@/lib/db"
-import { error } from "next/dist/build/output/log";
+
 
 async function POST(request : NextRequest){
     try {
         await dbConnect();
 
-        const {name, email, password} = request.json();
+        const {name, email, password} = await request.json();
 
         if(!email || !password){
             return NextResponse.json(

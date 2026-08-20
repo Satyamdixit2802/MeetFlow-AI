@@ -8,11 +8,11 @@ const transport = nodemailer.createTransport({
     }
 })
 
-export async function emailRemindesendReminderEmail(
+export async function sendEmailReminder(
      ownerEmail : string,
      task : string,
      deadline : string
-) : promise<void>{
+) : Promise<void>{
    const html = `
     <div style="font-family:sans-serif;max-width:480px;margin:auto;padding:24px;">
       <h2 style="color:#7c6af7;margin-bottom:8px;">Action item reminder</h2>
