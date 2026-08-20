@@ -7,7 +7,7 @@ import ActionItem from '@/models/Action.model'
 
 export async function POST(request:NextRequest) {
     
-    const {success,error} = await requireAuth()
+    const {session,error} = await requireAuth()
 
     if (error){
         return error
@@ -44,7 +44,7 @@ export async function POST(request:NextRequest) {
 }
 
 export async function GET(request : NextRequest){
-      const {success, error} = await requireAuth();
+      const {session, error} = await requireAuth();
       if(error) return error
 
       try {
