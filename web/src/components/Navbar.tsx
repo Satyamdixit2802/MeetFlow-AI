@@ -9,9 +9,9 @@ const {data : session} = useSession()
 
 
   return (
-    <div>
-      
-    </div>
+    <nav className= "border-b" >
+
+    </nav>
   )
 }
 
