@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toast"
 import {Providers} from './providers'
 import Navbar from '@/components/Navbar'
+import { ThemeProvider } from "@/components/theme-provider"
+import * as React from 'react'
 
 const inter = Inter({subsets :  ["latin"]})
 
@@ -15,21 +17,27 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="en"
-      className={`${inter.className} h-full antialiased`}
-    >
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
-         <Navbar />
-          <main className="min-h-screen bg-background">
-            {children}
-          </main>
-          <Toaster />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Navbar />
+
+            <main className="min-h-screen bg-background">
+              {children}
+            </main>
+
+            <Toaster />
+          </ThemeProvider>
         </Providers>
       </body>
     </html>
