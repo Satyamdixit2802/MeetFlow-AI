@@ -4,7 +4,7 @@ import User from "@/models/User.model"
 import dbConnect from "@/lib/db"
 
 
-async function POST(request : NextRequest){
+export async function POST(request : NextRequest){
     try {
         await dbConnect();
 
