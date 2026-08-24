@@ -4,8 +4,11 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toast"
 import {Providers} from './providers'
 import Navbar from '@/components/Navbar'
-import { ThemeProvider } from "@/components/theme-provider"
+
+
 import * as React from 'react'
+
+
 
 const inter = Inter({subsets :  ["latin"]})
 
@@ -24,12 +27,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
+         
             <Navbar />
 
             <main className="min-h-screen bg-background">
@@ -37,7 +35,7 @@ export default function RootLayout({
             </main>
 
             <Toaster />
-          </ThemeProvider>
+         
         </Providers>
       </body>
     </html>

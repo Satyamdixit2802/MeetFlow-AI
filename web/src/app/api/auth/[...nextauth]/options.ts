@@ -24,6 +24,7 @@ export const authOptions: NextAuthOptions = {
                     throw new Error ("Email and password are required")
                 }
                 await dbConnect();
+                
 
                 const user = await User.findOne({email : credentials.email});
 
