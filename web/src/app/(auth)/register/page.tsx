@@ -7,9 +7,10 @@ import {Button} from '@/components/ui/button'
 import Link from 'next/link'
 import { toast } from "@/components/ui/toast"
 import {MicAudioLines} from 'lucide-react'
-import Image from 'next/image'
+
 import axios from 'axios'
-import { error } from "next/dist/build/output/log";
+
+
 
 
  function  RegisterPage() {
@@ -65,10 +66,10 @@ setLoading(true)
       router.push("/dashboard")
         
     } catch (err : any) {
-        const mssg = err?.response?.data?.error ?? "Registration failed"
+        const message = err?.response?.data?.error ?? "Registration failed"
         toast.add({
             type : "destructive",
-            title : mssg
+            title : message
         })
     }finally {
         setLoading(false)
@@ -79,7 +80,7 @@ setLoading(true)
     }
 
     
-    function handleChange(e) {
+    function handleChange(e ) {
       const {name, value} = e.target
 
       setFormData((prev) => ({
