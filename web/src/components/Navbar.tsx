@@ -2,7 +2,7 @@
 
 import {useSession, signOut} from 'next-auth/react'
 import Link from 'next/link'
-import { Button,} from "@/components/ui/button"
+import { Button} from "@/components/ui/button"
 import {MicAudioLines} from 'lucide-react'
 
 import Image from "next/image"
@@ -46,8 +46,8 @@ const {data : session} = useSession()
                              <Button size = "lg"
                              onClick={()=> {signOut({callbackUrl: "/login"})}}>Sign out</Button>
                          </>
-                         :(<Link href="/login" className="">
-                             <button className=" active:scale-95 text-lg font-md">Sign in </button>
+                         :(<Link href="/login" >
+                             <Button size="lg" className=" active:scale-95 text-lg font-md">Sign in </Button>
                          </Link>)
                  }
              </div>

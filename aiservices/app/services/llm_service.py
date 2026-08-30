@@ -1,9 +1,10 @@
 from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from app.models.schemas import MeetingExtraction
-from app.config import GOOGLE_API_KEY , GROQ_API_KEY
+from app.config import OPEN_API_KEY , GROQ_API_KEY
 
 SYSTEM_PROMPT = """You are a meeting analysis assistant.
 Given a meeting transcript, extract:
@@ -24,10 +25,17 @@ def get_llm(model: str = "groq"):
      if model == 'gemini':
        return ChatGoogleGenerativeAI(
             model="gemini-1.5-flash",
-            google_api_key=GOOGLE_API_KEY,
+            google_api_key=G,
             temperature=0
         )
-     return  ChatGroq(
+     elif model == 'openai':
+       return ChatOpenAI(
+            model="",
+            google_api_key=G,
+            temperature=0
+        )
+     else: 
+       return  ChatGroq(
         model="llama-3.3-70b-versatile",
         api_key=GROQ_API_KEY,
         temperature=0

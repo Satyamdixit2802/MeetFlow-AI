@@ -38,7 +38,7 @@ return (
       : "border-border hover:border-primary-50 hover:bg-muted/30",
       selectedFile && "border-green-500 bg-green-500/5"
     )}>
-      <input {...getInputProps} />
+      <input {...getInputProps()} />
 
       {selectedFile ? (
         <div className="space-y-2">
