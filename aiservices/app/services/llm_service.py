@@ -4,7 +4,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from app.models.schemas import MeetingExtraction
-from app.config import OPEN_API_KEY , GROQ_API_KEY
+from app.config import OPEN_API_KEY, GROQ_API_KEY, GOOGLE_API_KEY
 
 SYSTEM_PROMPT = """You are a meeting analysis assistant.
 Given a meeting transcript, extract:
@@ -15,31 +15,38 @@ Given a meeting transcript, extract:
    - deadline: when it's due (use "no deadline" if not mentioned)
 
 Respond ONLY with valid JSON matching exactly:
-{{"summary": "...", "action_items": [{{"task": "...", "owner": "...", "deadline": "..."}}]}
+{{{{"summary": "...", "action_items": [{{{{"task": "...", "owner": "...", "deadline": "..."}}}}]}}}}
 
 Never add explanation outside the JSON."""
 
 
 def get_llm(model: str = "groq"):
+    normalized_model = "google" if model == "gemini" else model
 
-     if model == 'gemini':
-       return ChatGoogleGenerativeAI(
+    if normalized_model == 'google':
+        if not GOOGLE_API_KEY:
+            raise RuntimeError("GOOGLE_API_KEY is not set")
+        return ChatGoogleGenerativeAI(
             model="gemini-1.5-flash",
-            google_api_key=G,
-            temperature=0
+            google_api_key=GOOGLE_API_KEY,
+            temperature=0,
         )
-     elif model == 'openai':
-       return ChatOpenAI(
-            model="",
-            google_api_key=G,
-            temperature=0
+    elif normalized_model == 'openai':
+        if not OPEN_API_KEY:
+            raise RuntimeError("OPEN_API_KEY is not set")
+        return ChatOpenAI(
+            model="gpt-4o-mini",
+            api_key=OPEN_API_KEY,
+            temperature=0,
         )
-     else: 
-       return  ChatGroq(
-        model="llama-3.3-70b-versatile",
-        api_key=GROQ_API_KEY,
-        temperature=0
-     )
+    else:
+        if not GROQ_API_KEY:
+            raise RuntimeError("GROQ_API_KEY is not set")
+        return ChatGroq(
+            model="openai/gpt-oss-20b",
+            api_key=GROQ_API_KEY,
+            temperature=0,
+        )
 
 async def extract_meeting_data(transcript: str, model: str = "groq") -> MeetingExtraction:
      llm = get_llm(model)

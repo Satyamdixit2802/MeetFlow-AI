@@ -18,7 +18,11 @@ const MeetingSchema = new Schema<Meeting>(
             type : Schema.Types.ObjectId,
             ref: "UserModel",
             required : false
-        }
+        },
+        audioBase64 : {
+            type : String,
+            default : null
+        },
     },
     {timestamps : true}
 )

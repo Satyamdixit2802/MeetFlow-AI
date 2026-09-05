@@ -14,12 +14,15 @@ async def process(
     
     file: UploadFile = File(None),
     raw_text: str = Form(None),
+    rawText: str = Form(None),
     model : str = Form('groq'),
     title: str = Form('Unititled meeting')
 ):
 
-    if raw_text:
-        transcript = raw_text.strip()
+    transcript_input = raw_text or rawText
+
+    if transcript_input:
+        transcript = transcript_input.strip()
     elif file:
         suffix = os.path.splitext(file.filename)[1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp:

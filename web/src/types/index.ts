@@ -30,6 +30,7 @@ export interface Meeting extends Document {
   transcript: string;
   summary: string;
   userId?: Types.ObjectId;
+  audioBase64?: string
   createdAt: Date;
   updatedAt: Date;
 }
