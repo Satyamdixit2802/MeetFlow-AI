@@ -12,7 +12,7 @@ interface MeetingCardProps {
 }
 function MeetingCard({ id, title, summary, actionItemCount, createdAt }: MeetingCardProps) {
     return (
-        <Link href={`meetings/${id}`}>
+        <Link href={`/meetings/${id}`}>
             <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between gap-2">

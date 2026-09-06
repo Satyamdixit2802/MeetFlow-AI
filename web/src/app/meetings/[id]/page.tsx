@@ -22,13 +22,14 @@ interface Meeting {
   title: string
   summary: string
   transcript: string
+  audioBase64?: string
   createdAt: string
   actionItems: ActionItem[]
 
 }
 
 const Meetings = () => {
-  const { id } = useParams
+  const { id } = useParams<{ id: string }>()
   const router = useRouter();
   const [meeting, setMeeting] = useState<Meeting | null>(null)
   const [loading, setLoading] = useState(true)
@@ -42,7 +43,7 @@ const Meetings = () => {
   }, [id])
 
 
-if (loading) {
+  if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-10 space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -51,7 +52,7 @@ if (loading) {
       </div>
     )
   }
-  if(!meeting) return null
+  if (!meeting) return null
 
   const overdueCount = meeting.actionItems.filter((a) => {
     const d = new Date(a.deadline)
@@ -84,10 +85,68 @@ if (loading) {
 
       <Card>
         <CardHeader className="pb-2">
-           <CardTitle className="text-base">Summary</CardTitle>
+          <CardTitle className="text-base">Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {meeting.summary}
+          </p>
+          <Button
+            variant='ghost'
+            size={'sm'}
+            className='mt-3 text-xs'
+            onClick={() => setShowTranscript(!showTranscript)}>
+            {showTranscript ? "Hide transcript" : "showTranscript"}
+          </Button>
+          {showTranscript && (
+            <div className="mt-3 p-3 rounded-lg bg-muted/40 text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
+              {meeting.transcript || "No transcript available"}
+            </div>
+
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">
+              Action items ({meeting.actionItems.length})
+            </CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pb-0">
+          {meeting.actionItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground p-4">
+              No action item found for this meeting.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/30">
+                    <th className="text-left py-2 px-4 text-xs font-medium text-muted-foreground">Task</th>
+                    <th className="text-left py-2 px-4 text-xs font-medium text-muted-foreground">Owner</th>
+                    <th className="text-left py-2 px-4 text-xs font-medium text-muted-foreground">Deadline</th>
+                    <th className="text-left py-2 px-4 text-xs font-medium text-muted-foreground">Status</th>
+                    <th className="text-left py-2 px-4 text-xs font-medium text-muted-foreground"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {meeting.actionItems.map((item) => (
+                    <ActionItemRow
+                      key={item._id}
+                      id={item._id}
+                      task={item.task}
+                      owner={item.owner}
+                      deadline={item.deadline}
+                      status={item.status} />
+                  ))}
+                </tbody>
+              </table>
+
+            </div>
+          )}
         </CardContent>
       </Card>
 
