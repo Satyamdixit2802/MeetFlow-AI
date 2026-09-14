@@ -28,7 +28,7 @@ export async function POST(request:NextRequest) {
             task : body.task,
             owner : body.owner ?? "unassigned",
             deadline : body.deadline ?? "no deadline",
-            status : "Pending",
+            status : "pending",
             meetingId : body.meetingId
         })
         if(body.owner && body.owner !== "unassigned" && body.deadline && body.deadline !== "no deadline"){

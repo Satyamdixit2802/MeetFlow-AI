@@ -1,60 +1,54 @@
-import  dbconnect  from '@/lib/db'
-import {NextResponse, NextRequest} from 'next/server'
-import MeetingModel from '@/models/Meeting.model'
-import {requireAuth} from '@/lib/auth'
+import dbconnect from "@/lib/db"
+import { NextResponse, NextRequest } from "next/server"
+import MeetingModel from "@/models/Meeting.model"
+import { requireAuth } from "@/lib/auth"
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY!
 const ELEVENLABS_VOICE_ID =
   process.env.ELEVENLABS_VOICE_ID ?? "21m00Tcm4TlvDq8ikWAM"
 
-  const MAX_SUMMARY_CHARS = 800
+const MAX_SUMMARY_CHARS = 800
 
-  interface Params {
-    params : {meetingId : string}
-  }
+interface Params {
+  params: Promise<{ meetingId: string }>
+}
 
-  export async function POsT(request: NextRequest, {params} : Params){
+export async function POST(_request: NextRequest, { params }: Params) {
+  const { error } = await requireAuth()
+  if (error) return error
 
-            const {session,error} = await requireAuth()
+  try {
+    const { meetingId } = await params
+    await dbconnect()
 
-            if(error) return error
+    const meeting = await MeetingModel.findById(meetingId)
 
-            try {
-                await dbconnect()
+    if (!meeting) {
+      return NextResponse.json({ error: "Meeting not found" }, { status: 404 })
+    }
 
-                const meeting = await MeetingModel.findById(params.meetingId)
+    if (!meeting.summary) {
+      return NextResponse.json(
+        { error: "Meeting has no summary to speak" },
+        { status: 400 }
+      )
+    }
 
-                if(!meeting) {
-                    return NextResponse.json({
-                        error : "Meeting not found"
-                    },
-                {
-                    status: 404
-                })
-                }
+    if (meeting.audioBase64) {
+      const audioBuffer = Buffer.from(meeting.audioBase64, "base64")
+      return new NextResponse(audioBuffer, {
+        status: 200,
+        headers: {
+          "Content-Type": "audio/mpeg",
+          "Content-Length": audioBuffer.length.toString(),
+          "X-Audio-Source": "cache",
+        },
+      })
+    }
 
-                if(!meeting.summary){
-                    return NextResponse.json({
-                        error: "Meeting has no summary to speak"
-                    },
-                {status : 400})
-                }
+    const textToSpeak = meeting.summary.slice(0, MAX_SUMMARY_CHARS)
 
-                if(meeting.audioBase64) {
-                    const audioBuffer = Buffer.from(meeting.audioBase64,"base64")
-                    return NextResponse.json(audioBuffer,{
-                        status : 200,
-                        headers : {
-                            "Content-Type": "audio/mpeg",
-                            "Content-Length": audioBuffer.length.toString(),
-                            "X-Audio-Source": "cache", 
-
-                        }
-                    })
-                }
-                const textToSpeak = meeting.summary.slice(0,MAX_SUMMARY_CHARS)
-
-                 const elevenLabsResponse = await fetch(
+    const elevenLabsResponse = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}`,
       {
         method: "POST",
@@ -74,24 +68,22 @@ const ELEVENLABS_VOICE_ID =
       }
     )
 
-    if(!elevenLabsResponse.ok){
-        const errText = await elevenLabsResponse.text()
-        console.error("[ElevenLabs error]",errText)
-
-
-        return NextResponse.json({
-            error : "ElevenLabs API failed - check your API key and quota"
-        },
-    {status: 502})
+    if (!elevenLabsResponse.ok) {
+      const errText = await elevenLabsResponse.text()
+      console.error("[ElevenLabs error]", errText)
+      return NextResponse.json(
+        { error: "ElevenLabs API failed - check your API key and quota" },
+        { status: 502 }
+      )
     }
 
     const audioArrayBuffer = await elevenLabsResponse.arrayBuffer()
-     const audioBuffer = Buffer.from(audioArrayBuffer)
-     const audioBase64 = audioBuffer.toString("base64")
+    const audioBuffer = Buffer.from(audioArrayBuffer)
+    const audioBase64 = audioBuffer.toString("base64")
 
-     await MeetingModel.findByIdAndUpdate(params.meetingId,{audioBase64})
+    await MeetingModel.findByIdAndUpdate(meetingId, { audioBase64 })
 
-        return new NextResponse(audioBuffer, {
+    return new NextResponse(audioBuffer, {
       status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
@@ -99,38 +91,30 @@ const ELEVENLABS_VOICE_ID =
         "X-Audio-Source": "generated",
       },
     })
-                
-            } catch (err) {
-                console.error("[POST /api/tts/:meetingId]", err)
+  } catch (err) {
+    console.error("[POST /api/tts/:meetingId]", err)
     return NextResponse.json(
       { error: "Failed to generate audio" },
       { status: 500 }
     )
-                
-            }
-
   }
+}
 
-  export async function DELETE(request : NextRequest, {params}: Params) {
-    
-    const {session, error} = await requireAuth()
+export async function DELETE(_request: NextRequest, { params }: Params) {
+  const { error } = await requireAuth()
+  if (error) return error
 
-    if(error) return error
+  try {
+    const { meetingId } = await params
+    await dbconnect()
 
-    try {
-        await dbconnect()
-
-        await MeetingModel.findByIdAndUpdate(params.meetingId,{audioBase64 : null})
-        NextResponse.json({message: "Audio cached cleared"})
-        
-    } catch (err) {
-        console.error("[DELETE /api/tts/:meetingId",err)
-        return NextResponse.json(
-            {error: "Failed to clear audio cache"},
-            {status: 500}
-
-        )
-    }
-
-    
+    await MeetingModel.findByIdAndUpdate(meetingId, { audioBase64: null })
+    return NextResponse.json({ message: "Audio cache cleared" })
+  } catch (err) {
+    console.error("[DELETE /api/tts/:meetingId]", err)
+    return NextResponse.json(
+      { error: "Failed to clear audio cache" },
+      { status: 500 }
+    )
   }
+}

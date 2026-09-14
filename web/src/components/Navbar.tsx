@@ -1,61 +1,90 @@
 "use client"
 
-import {useSession, signOut} from 'next-auth/react'
-import Link from 'next/link'
-import { Button} from "@/components/ui/button"
-import {MicAudioLines} from 'lucide-react'
-
+import { useSession, signOut } from "next-auth/react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { Button } from "@/components/ui/button"
+import { MicAudioLines } from "lucide-react"
 import Image from "next/image"
 
-
 const Navbar = () => {
-const {data : session} = useSession()
-   
+  const { data: session } = useSession()
+  const [overdueCount, setOverdueCount] = useState(0)
 
+  useEffect(() => {
+    if (!session) return
+
+    axios
+      .get<{ overdueActions: number }>("/api/analytics")
+      .then((r) => setOverdueCount(r.data.overdueActions))
+      .catch(() => setOverdueCount(0))
+  }, [session])
 
   return (
-    <nav className= "  bg-gray-300/95 backdrop-blur-2xl sticky top-0 z-50 shadow-md shadow-gray-600  " >
-      <div className="w-6xl mx-auto px-4 h-20 flex items-center justify-between ">
-          <Link href="/" className="font-bold text-2xl tracking-tight flex items-center justify-center gap-2">
-              <MicAudioLines size ={30} />️ MeetingAI
-          </Link>
-         <div className={"flex items-center justify-between relative"}>
-             <div className="flex items-center gap-5">
-                 {
-                     session ?
-                         <>
-                             <Link href='/dashboard'
-                                   className = "text-md text-muted-foreground hover:text-foreground transition-colors">
-                                 Dashboard
-                             </Link>
-                             <Link href='/analytics'
-                                   className = "text-md text-muted-foreground hover:text-foreground transition-colors">
-                                 Analytics
-                             </Link>
-                             <div className="flex items-center gap-3">
-                                 
-                                 <span className="text-md text-muted-foreground">
-                                     {session.user?.name ?? session.user?.email}
-                                 </span>
-                                 {
-                                     session.user?.image && (
-                                         <Image src={session.user.image} alt="avatar" className = "rounded-4xl" width={40} height={40}    />
-                                     )
-                                 }
-                             </div>
-                             <Button size = "lg"
-                             onClick={()=> {signOut({callbackUrl: "/login"})}}>Sign out</Button>
-                         </>
-                         :(<Link href="/login" >
-                             <Button size="lg" className=" active:scale-95 text-lg font-md">Sign in </Button>
-                         </Link>)
-                 }
-             </div>
-             
-         </div>
-
+    <nav className="bg-gray-300/95 backdrop-blur-2xl sticky top-0 z-50 shadow-md shadow-gray-600">
+      <div className="w-6xl mx-auto px-4 h-20 flex items-center justify-between">
+        <Link
+          href="/"
+          className="font-bold text-2xl tracking-tight flex items-center justify-center gap-2"
+        >
+          <MicAudioLines size={30} />
+          MeetingAI
+        </Link>
+        <div className="flex items-center justify-between relative">
+          <div className="flex items-center gap-5">
+            {session ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="text-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                >
+                  Dashboard
+                  {overdueCount > 0 && (
+                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-medium">
+                      {overdueCount > 9 ? "9+" : overdueCount}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  href="/analytics"
+                  className="text-md text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Analytics
+                </Link>
+                <div className="flex items-center gap-3">
+                  <span className="text-md text-muted-foreground">
+                    {session.user?.name ?? session.user?.email}
+                  </span>
+                  {session.user?.image && (
+                    <Image
+                      src={session.user.image}
+                      alt="avatar"
+                      className="rounded-4xl"
+                      width={40}
+                      height={40}
+                    />
+                  )}
+                </div>
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    signOut({ callbackUrl: "/login" })
+                  }}
+                >
+                  Sign out
+                </Button>
+              </>
+            ) : (
+              <Link href="/login">
+                <Button size="lg" className="active:scale-95 text-lg font-md">
+                  Sign in
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
-
     </nav>
   )
 }
