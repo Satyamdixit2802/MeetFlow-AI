@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import ProcessRequest, MeetingExtraction
+from app.models.schemas import ProcessRequest, ProcessResponse
 from app.services.stt_service import transcribe_audio
 from app.services.llm_service import extract_meeting_data
 from app.services.webhook_service import save_to_nextjs
@@ -9,7 +9,7 @@ from fastapi import File, UploadFile, Form
 
 router = APIRouter()
 
-@router.post('/process', response_model=MeetingExtraction)
+@router.post('/process', response_model=ProcessResponse)
 async def process(
     
     file: UploadFile = File(None),
@@ -41,11 +41,19 @@ async def process(
 
     extraction = await extract_meeting_data(transcript, model=model)
 
-    await save_to_nextjs({
+    saved = await save_to_nextjs({
         "title": title,
         "transcript": transcript,
         "summary": extraction.summary,
         "action_items": [item.dict() for item in extraction.action_items]
     })
 
-    return extraction
+    meeting_id = None
+    if saved and saved.get("meeting"):
+        meeting_id = str(saved["meeting"].get("_id") or saved["meeting"].get("id"))
+
+    return ProcessResponse(
+        summary=extraction.summary,
+        action_items=extraction.action_items,
+        meeting_id=meeting_id,
+    )

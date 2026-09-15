@@ -22,9 +22,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: "Action item not found" }, { status: 404 })
     }
 
-    if (!action.owner || action.owner === "unassigned") {
+    if (!action.owner || /^unassigned$/i.test(action.owner.trim())) {
       return NextResponse.json(
         { error: "No owner assigned — cannot send reminder" },
+        { status: 400 }
+      )
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(action.owner.trim())) {
+      return NextResponse.json(
+        { error: "Owner must be an email address to send a reminder" },
         { status: 400 }
       )
     }
@@ -33,6 +39,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   } catch (error) {
     console.error("[POST /api/actions/:id/remind]", error)
-    return NextResponse.json({ error: "Failed to send reminder" }, { status: 500 })
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to send reminder" },
+      { status: 500 }
+    )
   }
 }

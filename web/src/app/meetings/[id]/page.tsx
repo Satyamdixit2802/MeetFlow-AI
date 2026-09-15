@@ -123,6 +123,7 @@ const Meetings = () => {
           </p>
           <AudioPlayer
             meetingId={meeting._id}
+            summaryText={meeting.summary}
             hasCachedAudio={!!meeting.audioBase64}
           />
           <Button

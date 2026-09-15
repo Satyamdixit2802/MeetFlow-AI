@@ -37,7 +37,6 @@ const ActionItemSchema = new Schema<ActionItem>(
 ActionItemSchema.index({ meetingId: 1 });
 
 const ActionItemModel: Model<ActionItem> =
-    mongoose.models.ActionItem ??
-    mongoose.model<ActionItem>("ActionItem", ActionItemSchema);
+    mongoose.models.ActionItem ?? mongoose.model<ActionItem>("ActionItem", ActionItemSchema)
 
 export default ActionItemModel;

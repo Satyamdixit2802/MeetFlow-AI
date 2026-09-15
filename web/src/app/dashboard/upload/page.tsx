@@ -23,8 +23,9 @@ const STATUS_STEPS: Record<string, { label: string; emoji: string }> = {
     error: { label: "Something went wrong", emoji: "❌" },
 }
 interface ExtractingResult {
-    summary: string,
-    action_items: { task: string, owner: string, deadline: string }[]
+    summary: string
+    action_items: { task: string; owner: string; deadline: string }[]
+    meeting_id?: string | null
 }
 
 
@@ -70,12 +71,13 @@ export default function UploadPage() {
 
             setStatus('saving')
 
-            await new Promise((r) => setTimeout(r, 1500))
-
-            const { data: meetings } = await axios.get("/api/meetings")
-
-            if (meetings?.[0]?._id) {
-                setMeetingId(meetings[0]._id)
+            if (extraction.meeting_id) {
+                setMeetingId(extraction.meeting_id)
+            } else {
+                const { data: meetings } = await axios.get("/api/meetings")
+                if (meetings?.[0]?._id) {
+                    setMeetingId(meetings[0]._id)
+                }
             }
 
             setStatus('done')
